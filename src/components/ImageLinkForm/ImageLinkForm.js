@@ -1,6 +1,6 @@
 import './ImageLinkForm.css';
 
-const ImageLinkForm = () => {
+const ImageLinkForm = ({onButtonClick}) => {
   return (
     <div>
       <div className="f3">
@@ -9,7 +9,7 @@ const ImageLinkForm = () => {
       <div className="center">
         <div className="form pa4 br3 shadow-5 center">
           <input type="text" className="f4 pa2 w-70 center" />
-          <button className="w-30 grow f4 link ph3 pv2 dib white bg-light-purple">
+          <button onClick={onButtonClick} className="w-30 grow f4 link ph3 pv2 dib white bg-light-purple">
             Detect
           </button>
         </div>
