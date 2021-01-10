@@ -64,7 +64,6 @@ class App extends React.Component {
 
   setFaceBoxes = (regions) => {
     const boundingBoxes = regions.map(region => this.calculateBox(region.region_info.bounding_box));
-    console.log(boundingBoxes);
     this.setState({boxes: boundingBoxes});
   }
 

@@ -11,8 +11,9 @@ const FaceRecognition = ({ imageUrl, boxes }) => {
           width="500px"
           height="auto"
         />
-        {boxes.map((box) => (
+        {boxes.map((box, i) => (
           <div
+            key={i}
             className="bounding-box"
             style={{
               inset: `${box.top}% ${box.right}% ${box.bottom}% ${box.left}%`,
