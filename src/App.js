@@ -36,7 +36,7 @@ class App extends React.Component {
   }
 
   onInputChange = (event) => {
-    this.setState({input: event.target.value});
+    this.setState({input: event.target.value, boxes: []});
   }
 
   onButtonClick = () => {
