@@ -30,7 +30,8 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      input: ''
+      input: '',
+      boxes: []
     }
   }
 
@@ -45,12 +46,31 @@ class App extends React.Component {
         this.state.input
       )
       .then((resp) => {
-        console.log(resp.outputs[0].data.regions[0].region_info.bounding_box);
+        this.displayFaces(resp);
       })
       .catch((err) => {
         console.log(err);
       });
   };
+
+  calculateBox = (box) => {
+    return {
+      top: box.top_row * 100,
+      right: 100 - box.right_col * 100,
+      left: box.left_col * 100,
+      bottom: 100 - box.bottom_row * 100
+    }
+  }
+
+  setFaceBoxes = (regions) => {
+    const boundingBoxes = regions.map(region => this.calculateBox(region.region_info.bounding_box));
+    console.log(boundingBoxes);
+    this.setState({boxes: boundingBoxes});
+  }
+
+  displayFaces = (clarifaiResp) => {
+    this.setFaceBoxes(clarifaiResp.outputs[0].data.regions);
+  }
 
   render() {
     return (
@@ -60,7 +80,7 @@ class App extends React.Component {
         <Logo />
         <Rank />
         <ImageLinkForm onButtonClick={this.onButtonClick} onInputChange={this.onInputChange} />
-        <FaceRecognition imageUrl={this.state.input}/>
+        <FaceRecognition imageUrl={this.state.input} boxes={this.state.boxes}/>
       </div>
     );
   }
