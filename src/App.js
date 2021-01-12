@@ -28,25 +28,32 @@ const particlesOptions = {
 };
 
 class App extends React.Component {
-
   constructor() {
     super();
     this.state = {
-      input: '',
-      boxes: []
-    }
+      input: "",
+      boxes: [],
+      route: "signIn",
+      isSignedIn: false,
+    };
   }
 
+  onRouteChange = (route) => {
+    if (route === "signOut") {
+      this.setState({ isSignedIn: false });
+    } else if (route === "home") {
+      this.setState({ isSignedIn: true });
+    }
+    this.setState({ route: route });
+  };
+
   onInputChange = (event) => {
-    this.setState({input: event.target.value, boxes: []});
-  }
+    this.setState({ input: event.target.value, boxes: [] });
+  };
 
   onButtonClick = () => {
     clarifai.models
-      .predict(
-        Clarifai.FACE_DETECT_MODEL,
-        this.state.input
-      )
+      .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
       .then((resp) => {
         this.displayFaces(resp);
       })
@@ -60,29 +67,51 @@ class App extends React.Component {
       top: box.top_row * 100,
       right: 100 - box.right_col * 100,
       left: box.left_col * 100,
-      bottom: 100 - box.bottom_row * 100
-    }
-  }
+      bottom: 100 - box.bottom_row * 100,
+    };
+  };
 
   setFaceBoxes = (regions) => {
-    const boundingBoxes = regions.map(region => this.calculateBox(region.region_info.bounding_box));
-    this.setState({boxes: boundingBoxes});
-  }
+    const boundingBoxes = regions.map((region) =>
+      this.calculateBox(region.region_info.bounding_box)
+    );
+    this.setState({ boxes: boundingBoxes });
+  };
 
   displayFaces = (clarifaiResp) => {
     this.setFaceBoxes(clarifaiResp.outputs[0].data.regions);
-  }
+  };
 
   render() {
+    const { input, boxes, route, isSignedIn } = this.state;
+    let div;
+
+    if (route === "home") {
+      div = (
+        <div>
+          <Logo />
+          <Rank />
+          <ImageLinkForm
+            onButtonClick={this.onButtonClick}
+            onInputChange={this.onInputChange}
+          />
+          <FaceRecognition
+            imageUrl={input}
+            boxes={boxes}
+          />
+        </div>
+      );
+    } else if (route === "register") {
+      div = <Register onRouteChange={this.onRouteChange}/>;
+    } else {
+      div = <SignIn onRouteChange={this.onRouteChange}/>;
+    }
+
     return (
       <div className="App">
         <Particles className="particles" params={particlesOptions} />
-        <Navigation />
-        <Register />
-        <Logo />
-        <Rank />
-        <ImageLinkForm onButtonClick={this.onButtonClick} onInputChange={this.onInputChange} />
-        <FaceRecognition imageUrl={this.state.input} boxes={this.state.boxes}/>
+        <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange}/>
+        {div}
       </div>
     );
   }
