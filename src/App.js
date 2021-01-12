@@ -7,6 +7,8 @@ import Logo from "./components/Logo/Logo";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import Rank from "./components/Rank/Rank";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
+import SignIn from "./components/SignIn/SignIn";
+import Register from "./components/Register/Register";
 
 //this is currently deprecated for web apps. look for changes in future.
 const clarifai = new Clarifai.App({
@@ -76,6 +78,7 @@ class App extends React.Component {
       <div className="App">
         <Particles className="particles" params={particlesOptions} />
         <Navigation />
+        <Register />
         <Logo />
         <Rank />
         <ImageLinkForm onButtonClick={this.onButtonClick} onInputChange={this.onInputChange} />
