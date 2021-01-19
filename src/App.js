@@ -35,8 +35,27 @@ class App extends React.Component {
       boxes: [],
       route: "signIn",
       isSignedIn: false,
+      user: {
+        id: "",
+        name: "",
+        email: "",
+        entries: 0,
+        createdAt: "",
+      },
     };
   }
+
+  loadUser = (data) => {
+    this.setState({
+      user: {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        entries: data.entries,
+        createdAt: data.createdAt,
+      },
+    });
+  };
 
   onRouteChange = (route) => {
     if (route === "signOut") {
@@ -55,7 +74,26 @@ class App extends React.Component {
     clarifai.models
       .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
       .then((resp) => {
-        this.displayFaces(resp);
+        if (resp.outputs[0].data.regions) {
+          fetch("http://localhost:3000/image", {
+            method: "put",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id: this.state.user.id,
+            }),
+          })
+            .then((resp) => resp.json())
+            .then((count) => {
+              this.setState({ user: { ...this.state.user, entries: count } });
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+
+          this.displayFaces(resp);
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -83,34 +121,38 @@ class App extends React.Component {
   };
 
   render() {
-    const { input, boxes, route, isSignedIn } = this.state;
+    const { user, input, boxes, route, isSignedIn } = this.state;
     let div;
 
     if (route === "home") {
       div = (
         <div>
           <Logo />
-          <Rank />
+          <Rank name={user.name} entries={user.entries} />
           <ImageLinkForm
             onButtonClick={this.onButtonClick}
             onInputChange={this.onInputChange}
           />
-          <FaceRecognition
-            imageUrl={input}
-            boxes={boxes}
-          />
+          <FaceRecognition imageUrl={input} boxes={boxes} />
         </div>
       );
     } else if (route === "register") {
-      div = <Register onRouteChange={this.onRouteChange}/>;
+      div = (
+        <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
+      );
     } else {
-      div = <SignIn onRouteChange={this.onRouteChange}/>;
+      div = (
+        <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
+      );
     }
 
     return (
       <div className="App">
         <Particles className="particles" params={particlesOptions} />
-        <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange}/>
+        <Navigation
+          isSignedIn={isSignedIn}
+          onRouteChange={this.onRouteChange}
+        />
         {div}
       </div>
     );
