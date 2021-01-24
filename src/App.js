@@ -59,7 +59,7 @@ class App extends React.Component {
 
   onRouteChange = (route) => {
     if (route === "signOut") {
-      this.setState({ isSignedIn: false });
+      this.setState({ isSignedIn: false, input: '', boxes: [] });
     } else if (route === "home") {
       this.setState({ isSignedIn: true });
     }
