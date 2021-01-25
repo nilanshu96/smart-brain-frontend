@@ -1,6 +1,5 @@
 import "./App.css";
 import React from "react";
-import Clarifai from "clarifai";
 import Particles from "react-particles-js";
 import Navigation from "./components/Navigation/Navigation";
 import Logo from "./components/Logo/Logo";
@@ -11,10 +10,6 @@ import SignIn from "./components/SignIn/SignIn";
 import Register from "./components/Register/Register";
 
 //this is currently deprecated for web apps. look for changes in future.
-const clarifai = new Clarifai.App({
-  apiKey: "***REMOVED***",
-});
-
 const particlesOptions = {
   particles: {
     number: {
@@ -24,6 +19,20 @@ const particlesOptions = {
         value_area: 800,
       },
     },
+  },
+};
+
+const initialState = {
+  input: "",
+  boxes: [],
+  route: "signIn",
+  isSignedIn: false,
+  user: {
+    id: "",
+    name: "",
+    email: "",
+    entries: 0,
+    createdAt: "",
   },
 };
 
@@ -59,7 +68,7 @@ class App extends React.Component {
 
   onRouteChange = (route) => {
     if (route === "signOut") {
-      this.setState({ isSignedIn: false, input: '', boxes: [] });
+      this.setState(initialState);
     } else if (route === "home") {
       this.setState({ isSignedIn: true });
     }
@@ -71,10 +80,18 @@ class App extends React.Component {
   };
 
   onButtonClick = () => {
-    clarifai.models
-      .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-      .then((resp) => {
-        if (resp.outputs[0].data.regions) {
+    fetch("http://localhost:3000/imageurl", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        imageurl: this.state.input,
+      }),
+    })
+      .then((resp) => resp.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
           fetch("http://localhost:3000/image", {
             method: "put",
             headers: {
@@ -92,7 +109,7 @@ class App extends React.Component {
               console.log(err);
             });
 
-          this.displayFaces(resp);
+          this.displayFaces(data);
         }
       })
       .catch((err) => {
@@ -109,15 +126,11 @@ class App extends React.Component {
     };
   };
 
-  setFaceBoxes = (regions) => {
+  displayFaces = (regions) => {
     const boundingBoxes = regions.map((region) =>
       this.calculateBox(region.region_info.bounding_box)
     );
     this.setState({ boxes: boundingBoxes });
-  };
-
-  displayFaces = (clarifaiResp) => {
-    this.setFaceBoxes(clarifaiResp.outputs[0].data.regions);
   };
 
   render() {
