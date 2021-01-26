@@ -80,7 +80,7 @@ class App extends React.Component {
   };
 
   onButtonClick = () => {
-    fetch("http://localhost:3000/imageurl", {
+    fetch(`${process.env.REACT_APP_API_URL}/imageurl`, {
       method: "post",
       headers: {
         "Content-Type": "application/json",
@@ -92,7 +92,7 @@ class App extends React.Component {
       .then((resp) => resp.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          fetch("http://localhost:3000/image", {
+          fetch(`${process.env.REACT_APP_API_URL}/image`, {
             method: "put",
             headers: {
               "Content-Type": "application/json",
