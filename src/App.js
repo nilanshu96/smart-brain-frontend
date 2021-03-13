@@ -8,6 +8,8 @@ import Rank from "./components/Rank/Rank";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import SignIn from "./components/SignIn/SignIn";
 import Register from "./components/Register/Register";
+import Modal from "./components/Modal/Modal";
+import Profile from "./components/Profile/Profile";
 
 //this is currently deprecated for web apps. look for changes in future.
 const particlesOptions = {
@@ -27,6 +29,7 @@ const initialState = {
   boxes: [],
   route: "signIn",
   isSignedIn: false,
+  isProfileOpen: false,
   user: {
     id: "",
     name: "",
@@ -40,17 +43,7 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      input: "",
-      boxes: [],
-      route: "signIn",
-      isSignedIn: false,
-      user: {
-        id: "",
-        name: "",
-        email: "",
-        entries: 0,
-        createdAt: "",
-      },
+      ...initialState,
     };
   }
 
@@ -133,8 +126,15 @@ class App extends React.Component {
     this.setState({ boxes: boundingBoxes });
   };
 
+  toggleModal = () => {
+    this.setState((prevState) => ({
+      ...prevState,
+      isProfileOpen: !prevState.isProfileOpen,
+    }));
+  };
+
   render() {
-    const { user, input, boxes, route, isSignedIn } = this.state;
+    const { user, input, boxes, route, isSignedIn, isProfileOpen } = this.state;
     let div;
 
     if (route === "home") {
@@ -165,7 +165,16 @@ class App extends React.Component {
         <Navigation
           isSignedIn={isSignedIn}
           onRouteChange={this.onRouteChange}
+          toggleModal={this.toggleModal}
         />
+        {isProfileOpen && (
+          <Modal>
+            <Profile
+              isProfileOpen={isProfileOpen}
+              toggleModal={this.toggleModal}
+            />
+          </Modal>
+        )}
         {div}
       </div>
     );
