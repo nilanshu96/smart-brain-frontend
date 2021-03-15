@@ -33,9 +33,10 @@ const initialState = {
   user: {
     id: "",
     name: "",
+    age: "",
     email: "",
     entries: 0,
-    createdAt: "",
+    joined: "",
   },
 };
 
@@ -54,7 +55,7 @@ class App extends React.Component {
         name: data.name,
         email: data.email,
         entries: data.entries,
-        createdAt: data.createdAt,
+        joined: data.joined,
       },
     });
   };
@@ -170,6 +171,8 @@ class App extends React.Component {
         {isProfileOpen && (
           <Modal>
             <Profile
+              user={user}
+              loadUser={this.loadUser}
               isProfileOpen={isProfileOpen}
               toggleModal={this.toggleModal}
             />
