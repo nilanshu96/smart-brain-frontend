@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import "./Profile.css";
 
-const Profile = ({ isProfileOpen, toggleModal, user, loadUser }) => {
+const Profile = ({ onRouteChange, toggleModal, user, loadUser }) => {
   const [name, setName] = useState(user.name);
   const [age, setAge] = useState(25);
 
@@ -24,14 +24,16 @@ const Profile = ({ isProfileOpen, toggleModal, user, loadUser }) => {
       method: "post",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": window.sessionStorage.getItem("token")
       },
       body: JSON.stringify({ formInput: data }),
     })
       .then((resp) => {
-          console.log(resp);
         if (resp.status === 200) {
           loadUser({ ...user, ...data });
           toggleModal();
+        } else {
+          onRouteChange("signOut");
         }
       })
       .catch(console.log);

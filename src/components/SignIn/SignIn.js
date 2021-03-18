@@ -1,6 +1,6 @@
 import React from "react";
 
-import './SignIn.css';
+import "./SignIn.css";
 class SignIn extends React.Component {
   constructor(props) {
     super(props);
@@ -9,6 +9,10 @@ class SignIn extends React.Component {
       password: "",
     };
   }
+
+  saveAuthTokenInSession = (token) => {
+    window.sessionStorage.setItem("token", token);
+  };
 
   onEmailChanged = (event) => {
     this.setState({ email: event.target.value });
@@ -29,11 +33,25 @@ class SignIn extends React.Component {
       body: JSON.stringify({ email, password }),
     })
       .then((resp) => resp.json())
-      .then((user) => {
-        if (user.id) {
-          this.props.loadUser(user);
-          this.props.onRouteChange("home");
+      .then((data) => {
+        if (data.userid) {
+          this.saveAuthTokenInSession(data.token);
+          return fetch(
+            `${process.env.REACT_APP_API_URL}/profile/${data.userid}`, {
+              method: "get",
+              headers: {
+                "Authorization": data.token
+              }
+            }
+          );
+        } else {
+          return Promise.reject("Received invalid user data");
         }
+      })
+      .then((resp) => resp.json())
+      .then((user) => {
+        this.props.loadUser(user);
+        this.props.onRouteChange("home");
       })
       .catch((err) => {
         throw err;

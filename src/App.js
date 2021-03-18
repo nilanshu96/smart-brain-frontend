@@ -78,18 +78,26 @@ class App extends React.Component {
       method: "post",
       headers: {
         "Content-Type": "application/json",
+        Authorization: window.sessionStorage.getItem("token"),
       },
       body: JSON.stringify({
         imageurl: this.state.input,
       }),
     })
-      .then((resp) => resp.json())
+      .then((resp) => {
+        if (resp.status === 200) {
+          return resp.json();
+        }
+        this.onRouteChange("signOut");
+        return Promise.reject("Unauthorized");
+      })
       .then((data) => {
         if (Array.isArray(data)) {
           fetch(`${process.env.REACT_APP_API_URL}/image`, {
             method: "put",
             headers: {
               "Content-Type": "application/json",
+              Authorization: window.sessionStorage.getItem("token"),
             },
             body: JSON.stringify({
               id: this.state.user.id,
@@ -173,7 +181,7 @@ class App extends React.Component {
             <Profile
               user={user}
               loadUser={this.loadUser}
-              isProfileOpen={isProfileOpen}
+              onRouteChange={this.onRouteChange}
               toggleModal={this.toggleModal}
             />
           </Modal>
@@ -181,6 +189,45 @@ class App extends React.Component {
         {div}
       </div>
     );
+  }
+
+  componentDidMount() {
+    const token = window.sessionStorage.getItem("token");
+
+    if (token) {
+      fetch(`${process.env.REACT_APP_API_URL}/signin`, {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      })
+        .then((resp) => resp.json())
+        .then((data) => {
+          if (data.id) {
+            return fetch(
+              `${process.env.REACT_APP_API_URL}/profile/${data.id}`,
+              {
+                method: "get",
+                headers: {
+                  Authorization: token,
+                },
+              }
+            );
+          } else {
+            return Promise.reject("Received invalid user data");
+          }
+        })
+        .then((resp) => resp.json())
+        .then((user) => {
+          this.loadUser(user);
+          this.onRouteChange("home");
+        })
+        .catch((err) => {
+          console.log(err);
+          throw err;
+        });
+    }
   }
 }
 
