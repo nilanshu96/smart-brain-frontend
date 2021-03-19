@@ -4,7 +4,7 @@ import "./Profile.css";
 
 const Profile = ({ onRouteChange, toggleModal, user, loadUser }) => {
   const [name, setName] = useState(user.name);
-  const [age, setAge] = useState(25);
+  const [age, setAge] = useState(user.age);
 
   const onFormChange = (event) => {
     switch (event.target.name) {
@@ -30,6 +30,7 @@ const Profile = ({ onRouteChange, toggleModal, user, loadUser }) => {
     })
       .then((resp) => {
         if (resp.status === 200) {
+          console.log(data);
           loadUser({ ...user, ...data });
           toggleModal();
         } else {
@@ -77,7 +78,7 @@ const Profile = ({ onRouteChange, toggleModal, user, loadUser }) => {
               name="user-age"
               id="user-age"
               onChange={onFormChange}
-              placeholder={age}
+              placeholder={age>=0?age:"Set Your Age"}
             />
 
             <div
@@ -85,7 +86,7 @@ const Profile = ({ onRouteChange, toggleModal, user, loadUser }) => {
               style={{ display: "flex", justifyContent: "space-evenly" }}
             >
               <button
-                onClick={() => onProfileUpdate({ name }, user.id)}
+                onClick={() => onProfileUpdate({ name, age }, user.id)}
                 className="b pa2 grow pointer hover-white b--black-20 bg-light-blue w-40"
               >
                 Save

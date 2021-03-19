@@ -11,6 +11,19 @@ const ProfileIcon = ({onRouteChange, toggleModal}) => {
 
   const toggle = () => setDropdownOpen((prevState) => !prevState);
 
+  const onSignOut = () => {
+    fetch(`${process.env.REACT_APP_API_URL}/signout`, {
+      method: "get",
+      headers: {
+        "Authorization": window.sessionStorage.getItem("token")
+      }
+    })
+    .catch(err => {
+      throw err;
+    })
+    onRouteChange('signOut');
+  }
+
   return (
     <div className="pa4 tc">
       <Dropdown isOpen={dropdownOpen} toggle={toggle}>
@@ -33,7 +46,7 @@ const ProfileIcon = ({onRouteChange, toggleModal}) => {
           }}
         >
           <DropdownItem onClick={toggleModal}>Profile</DropdownItem>
-          <DropdownItem onClick={() => onRouteChange("signOut")}>SignOut</DropdownItem>
+          <DropdownItem onClick={onSignOut}>SignOut</DropdownItem>
         </DropdownMenu>
       </Dropdown>
     </div>
